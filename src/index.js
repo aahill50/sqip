@@ -63,8 +63,40 @@ const argvOptions = [{
         type: 'int',
         description: `GaussianBlur SVG filter value. Disable via 0, defaults to 12`,
         example: "'sqip --blur=3' or 'sqip -b 3'"
+    },
+    {
+        name: 'bgColor',
+        short: 'c',
+        type: 'hex',
+        description: `Starting background color (hex). Defaults to the avg color of the image`,
+        example: "'sqip --bgColor=ffffff' or 'sqip -c ffffff'"
+    },
+    {
+        name: 'workers',
+        short: 'w',
+        type: 'int',
+        description: `Number of parallel workers (cores) to use. Defaults to 0 (all)`,
+        example: "'sqip --workers=2' or 'sqip -w 2'"
     }
 ];
+
+//Validates that a valid hex value was passed, otherwise ignores the value passed
+const isHexChar = char => {
+    charCode = char.toLowerCase().charCodeAt(0);
+    const isNum = charCode >= 48 && charCode <= 57;
+    const isAtoF = charCode >= 97 && charCode <= 102;
+    return isNum || isAtoF;
+}
+
+argv.type('hex', value => {
+    const len = value.length;
+    const chars = value.split('');
+    if ((len === 3 || len === 6) && chars.every(isHexChar)) {
+        return value;
+    }
+    return null;
+});
+
 const getArguments = () => argv.option(argvOptions).run();
 
 
@@ -130,14 +162,22 @@ const getDimensions = (filename) => sizeOf(filename);
 const findLargerImageDimension = ({ width, height }) => width > height ? width : height;
 
 // Run Primitive with reasonable defaults (rectangles as shapes, 9 shaper per default) to generate the placeholder SVG
-const runPrimitive = (filename, { numberOfPrimitives = 8, mode = 0 }, primitive_output, dimensions) => {
-    child_process.execFileSync(primitiveExecutable, [
+const runPrimitive = (filename, { numberOfPrimitives = 8, mode = 0, bgColor, workers = 0 }, primitive_output, dimensions) => {
+    const execArgs = [
         "-i", filename,
         "-o", primitive_output,
         "-n", numberOfPrimitives,
         "-m", mode,
+        "-w", workers,
         "-s", findLargerImageDimension(dimensions)
-    ]);
+    ];
+
+    if (bgColor) {
+        execArgs.push('-bg');
+        execArgs.push(bgColor);
+    }
+
+    child_process.execFileSync(primitiveExecutable, execArgs);
 }
 
 // Read the Primitive-generated SVG so that we can continue working on it
