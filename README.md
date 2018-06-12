@@ -115,6 +115,9 @@ sqip -b 3 input.jpg
 # This value must be a valid hex-code (without the leading #)
 # Invalid values will be ignored
 sqip -c c0ffee input.jpg
+
+# Set the number of parallel workers to use (defaults to using all)
+sqip -w 2 input.jpg
 ```
 
 ### NODE API
@@ -127,6 +130,7 @@ Input options:
 - mode (default=0)
 - blur (default=12)
 - bgColor (default is average color of image)
+- workers (default=0 (all))
 
 Returns:
 - final_svg - string

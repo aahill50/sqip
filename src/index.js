@@ -70,6 +70,13 @@ const argvOptions = [{
         type: 'hex',
         description: `Starting background color (hex). Defaults to the avg color of the image`,
         example: "'sqip --bgColor=ffffff' or 'sqip -c ffffff'"
+    },
+    {
+        name: 'workers',
+        short: 'w',
+        type: 'int',
+        description: `Number of parallel workers (cores) to use. Defaults to 0 (all)`,
+        example: "'sqip --workers=2' or 'sqip -w 2'"
     }
 ];
 
@@ -155,12 +162,13 @@ const getDimensions = (filename) => sizeOf(filename);
 const findLargerImageDimension = ({ width, height }) => width > height ? width : height;
 
 // Run Primitive with reasonable defaults (rectangles as shapes, 9 shaper per default) to generate the placeholder SVG
-const runPrimitive = (filename, { numberOfPrimitives = 8, mode = 0, bgColor }, primitive_output, dimensions) => {
+const runPrimitive = (filename, { numberOfPrimitives = 8, mode = 0, bgColor, workers = 0 }, primitive_output, dimensions) => {
     const execArgs = [
         "-i", filename,
         "-o", primitive_output,
         "-n", numberOfPrimitives,
         "-m", mode,
+        "-w", workers,
         "-s", findLargerImageDimension(dimensions)
     ];
 
