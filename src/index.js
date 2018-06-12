@@ -168,7 +168,7 @@ const runPrimitive = (filename, { numberOfPrimitives = 8, mode = 0, bgColor, wor
         "-o", primitive_output,
         "-n", numberOfPrimitives,
         "-m", mode,
-        "-w", workers,
+        "-j", workers,
         "-s", findLargerImageDimension(dimensions)
     ];
 
